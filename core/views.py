@@ -1,17 +1,12 @@
-from django.shortcuts import render
+from django.shortcuts import redirect, render, get_object_or_404
 from django.views.decorators.csrf import csrf_protect
 from .models import *
+from django.contrib.auth import authenticate, login
 
 
 def index(request):
     items = Item.objects.all()
     return render(request, 'main/index.html', {'items': items})
-
-
-def detail(request):
-    item = Item.objects.all()
-
-    return render(request, 'main/indexdetail.html', {'items': item})
 
 
 def about(request):
@@ -23,8 +18,25 @@ def signup(request):
 
 
 @csrf_protect
-def signin(request):
-    return render(request, 'registration/login.html')
+# def signin(request):
+#     return render(request, 'registration/login.html')
+def login(request):
+    if request.method == 'POST':
+        username = request.POST.get('username')
+        password = request.POST.get('password')
+        user = authenticate(request, username=username, password=password)
+        if user is not None:
+            login(request, user)
+            return redirect('home')
+        else:
+            return ("You are not logged")
+
+    else:
+        return render(request, 'accounts/login.html')
+
+
+def logout(request):
+    return render(request, 'registration/logged_out.html')
 
 
 def wishlist(request):
